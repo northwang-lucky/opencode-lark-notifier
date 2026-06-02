@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 (2026-06-02)
+
+### Bug Fixes
+
+- 修复 npm 发布时未包含 dist 目录的问题：将 `files` 字段从 `src` 改为 `dist`
+
+---
+
 ## 1.0.0 (2026-06-02)
 
 ### Features

@@ -1,6 +1,6 @@
 {
   "name": "opencode-lark-notifier",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "opencode plugin for lark notifications",
   "main": "./dist/index.js",
   "module": "src/index.ts",
@@ -28,7 +28,7 @@
     "typescript": "^6"
   },
   "files": [
-    "src",
+    "dist",
     "CHANGELOG.md",
     "README.md"
   ]
