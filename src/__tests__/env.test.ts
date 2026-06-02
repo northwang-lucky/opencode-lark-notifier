@@ -1,6 +1,18 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { mkdir, rm } from "node:fs/promises";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { isConfigValid, loadConfig, readEnvFile } from "../env";
 import type { LarkConfig } from "../types";
+
+const managedEnvKeys = [
+  "LARK_APP_ID",
+  "LARK_APP_SECRET",
+  "LARK_USER_EMAIL",
+  "LARK_USER_OPEN_ID",
+  "LARK_USER_ID",
+  "LARK_NOTIFIER_EVENTS",
+  "LARK_NOTIFIER_RATE_LIMIT_MS",
+  "LARK_NOTIFIER_COOLDOWN_MS",
+] as const;
 
 describe("readEnvFile", () => {
   test("parses KEY=value format", async () => {
@@ -108,8 +120,24 @@ describe("isConfigValid", () => {
 
 describe("loadConfig", () => {
   const originalEnv = { ...process.env };
+  const originalCwd = process.cwd();
+  let tmpDir = "";
 
-  afterEach(() => {
+  beforeEach(async () => {
+    tmpDir = `/tmp/opencode-lark-notifier-env-test-${process.pid}-${Date.now()}`;
+    await mkdir(tmpDir, { recursive: true });
+    process.chdir(tmpDir);
+
+    for (const key of managedEnvKeys) {
+      delete process.env[key];
+    }
+
+    process.env.XDG_CONFIG_HOME = tmpDir;
+  });
+
+  afterEach(async () => {
+    process.chdir(originalCwd);
+
     // Restore original env — delete only what we might have set
     delete process.env.LARK_APP_ID;
     delete process.env.LARK_APP_SECRET;
@@ -122,6 +150,8 @@ describe("loadConfig", () => {
     for (const key of Object.keys(originalEnv)) {
       process.env[key] = originalEnv[key];
     }
+
+    await rm(tmpDir, { force: true, recursive: true });
   });
 
   test("reads required fields from process.env", async () => {
