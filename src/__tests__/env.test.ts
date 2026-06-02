@@ -16,7 +16,7 @@ describe("readEnvFile", () => {
 
   test("parses quoted values (double and single)", async () => {
     const tmpFile = `/tmp/test-env-${Date.now()}.env`;
-    await Bun.write(tmpFile, 'FOO="bar"\nBAZ=\'qux\'');
+    await Bun.write(tmpFile, "FOO=\"bar\"\nBAZ='qux'");
 
     const result = await readEnvFile(tmpFile);
     expect(result["FOO"]).toBe("bar");

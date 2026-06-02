@@ -57,11 +57,7 @@ describe("sendCardMessage", () => {
         });
       }) as unknown as typeof global.fetch;
 
-      const result = await sendCardMessage(
-        "token",
-        { receiveId: "test", receiveIdType: "email" },
-        "{}",
-      );
+      const result = await sendCardMessage("token", { receiveId: "test", receiveIdType: "email" }, "{}");
       expect(result).toBe(false);
 
       global.fetch = originalFetch;

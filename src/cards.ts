@@ -48,22 +48,11 @@ export function truncate(text: string, maxLen: number): string {
  * Build a Feishu interactive card JSON string
  */
 export function buildCard(payload: CardPayload): string {
-  const theme =
-    payload.theme ||
-    EVENT_THEME_MAP[payload.eventType] ||
-    "blue";
-  const title =
-    payload.title ||
-    EVENT_TITLE_MAP[payload.eventType] ||
-    "ℹ️ OpenCode 事件通知";
+  const theme = payload.theme || EVENT_THEME_MAP[payload.eventType] || "blue";
+  const title = payload.title || EVENT_TITLE_MAP[payload.eventType] || "ℹ️ OpenCode 事件通知";
   const safeTitle = truncate(escapeMarkdown(title), MAX_TITLE_LENGTH);
-  const safeContent = truncate(
-    escapeMarkdown(payload.content),
-    MAX_CONTENT_LENGTH,
-  );
-  const note = payload.note
-    ? escapeMarkdown(payload.note)
-    : "opencode-lark-notifier";
+  const safeContent = truncate(escapeMarkdown(payload.content), MAX_CONTENT_LENGTH);
+  const note = payload.note ? escapeMarkdown(payload.note) : "opencode-lark-notifier";
 
   const card = {
     schema: "2.0",

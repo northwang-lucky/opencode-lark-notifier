@@ -81,12 +81,7 @@ describe("CardPayload", () => {
 
 describe("EventType", () => {
   test("accepts known event types", () => {
-    const events: EventType[] = [
-      "session.idle",
-      "session.error",
-      "question.asked",
-      "permission.asked",
-    ];
+    const events: EventType[] = ["session.idle", "session.error", "question.asked", "permission.asked"];
     expect(events).toHaveLength(4);
   });
 
@@ -98,16 +93,7 @@ describe("EventType", () => {
 
 describe("CardTheme", () => {
   test("accepts all valid themes", () => {
-    const themes: CardTheme[] = [
-      "turquoise",
-      "green",
-      "yellow",
-      "orange",
-      "red",
-      "blue",
-      "wathet",
-      "grey",
-    ];
+    const themes: CardTheme[] = ["turquoise", "green", "yellow", "orange", "red", "blue", "wathet", "grey"];
     expect(themes).toHaveLength(8);
   });
 });

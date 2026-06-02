@@ -63,31 +63,24 @@ export function resolveUser(config: LarkConfig): UserInfo | null {
 /**
  * Send an interactive card message to a user.
  */
-export async function sendCardMessage(
-  token: string,
-  user: UserInfo,
-  cardJson: string,
-): Promise<boolean> {
+export async function sendCardMessage(token: string, user: UserInfo, cardJson: string): Promise<boolean> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const res = await fetch(
-      `${LARK_API_BASE}/im/v1/messages?receive_id_type=${user.receiveIdType}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          receive_id: user.receiveId,
-          msg_type: "interactive",
-          content: cardJson,
-        }),
-        signal: controller.signal,
+    const res = await fetch(`${LARK_API_BASE}/im/v1/messages?receive_id_type=${user.receiveIdType}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        receive_id: user.receiveId,
+        msg_type: "interactive",
+        content: cardJson,
+      }),
+      signal: controller.signal,
+    });
 
     if (!res.ok) {
       // Handle 401 by clearing token and letting caller retry
@@ -110,10 +103,7 @@ export async function sendCardMessage(
  * Unified entry point: get token → resolve user → send card.
  * Returns true if message sent successfully.
  */
-export async function sendNotification(
-  config: LarkConfig,
-  card: CardPayload,
-): Promise<boolean> {
+export async function sendNotification(config: LarkConfig, card: CardPayload): Promise<boolean> {
   const user = resolveUser(config);
   if (!user) return false;
 

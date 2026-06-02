@@ -1,5 +1,5 @@
 export const DEFAULT_RATE_LIMIT_MS = 30000; // 30 seconds
-export const DEFAULT_COOLDOWN_MS = 5000;    // 5 seconds
+export const DEFAULT_COOLDOWN_MS = 5000; // 5 seconds
 
 /**
  * Create a rate limiter that prevents sending too many messages.

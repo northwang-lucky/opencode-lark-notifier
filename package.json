@@ -1,26 +1,26 @@
 {
-	"name": "opencode-lark-notifier",
-	"version": "0.1.0",
-	"description": "opencode plugin for lark notifications",
-	"module": "src/index.ts",
-	"type": "module",
-	"private": true,
-	"exports": {
-		".": "./src/index.ts"
-	},
-	"scripts": {
-		"dev": "bun run src/index.ts",
-		"build": "bun build src/index.ts --outdir=dist",
-		"format": "biome format --write .",
-		"lint": "biome lint .",
-		"check": "biome check --write .",
-		"test": "bun test",
-		"typecheck": "tsc --noEmit"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.4.16",
-		"@opencode-ai/plugin": "^1.15.13",
-		"@types/bun": "latest",
-		"typescript": "^5"
-	}
+  "name": "opencode-lark-notifier",
+  "version": "0.1.0",
+  "description": "opencode plugin for lark notifications",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir=dist",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.16",
+    "@opencode-ai/plugin": "^1.15.13",
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
 }

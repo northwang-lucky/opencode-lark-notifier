@@ -19,23 +19,10 @@ export interface NotifierConfig {
 }
 
 // Event types we handle
-export type EventType =
-  | "session.idle"
-  | "session.error"
-  | "question.asked"
-  | "permission.asked"
-  | string; // For custom events
+export type EventType = "session.idle" | "session.error" | "question.asked" | "permission.asked" | string; // For custom events
 
 // Card color themes (maps to Feishu header.template values)
-export type CardTheme =
-  | "turquoise"
-  | "green"
-  | "yellow"
-  | "orange"
-  | "red"
-  | "blue"
-  | "wathet"
-  | "grey";
+export type CardTheme = "turquoise" | "green" | "yellow" | "orange" | "red" | "blue" | "wathet" | "grey";
 
 // Parameters for building a card message
 export interface CardPayload {

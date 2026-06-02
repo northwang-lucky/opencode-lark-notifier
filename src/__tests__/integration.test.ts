@@ -57,11 +57,7 @@ function createMockFetch(behavior: MockBehavior = {}) {
   let messageCallCount = 0;
 
   const mockFn = async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
-    const url = typeof input === "string"
-      ? input
-      : input instanceof URL
-        ? input.toString()
-        : input.url;
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
     const body = init?.body ? JSON.parse(init.body as string) : null;
 
@@ -94,36 +90,36 @@ function createMockFetch(behavior: MockBehavior = {}) {
     // Token endpoint
     if (url.includes("/auth/v3/tenant_access_token/internal")) {
       if (tokenBehavior === "fail") {
-        return new Response(
-          JSON.stringify({ code: 999, msg: "auth failed" }),
-          { status: 400, headers: { "Content-Type": "application/json" } },
-        );
+        return new Response(JSON.stringify({ code: 999, msg: "auth failed" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
       }
-      return new Response(
-        JSON.stringify({ code: 0, msg: "ok", tenant_access_token: "t-mock-token", expire: 7200 }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ code: 0, msg: "ok", tenant_access_token: "t-mock-token", expire: 7200 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Message endpoint
     if (url.includes("/im/v1/messages")) {
       messageCallCount++;
       if (messageBehavior === "retry-401" && messageCallCount === 1) {
-        return new Response(
-          JSON.stringify({ code: FEISHU_ERR_INVALID_TOKEN, msg: "Invalid token" }),
-          { status: 401, headers: { "Content-Type": "application/json" } },
-        );
+        return new Response(JSON.stringify({ code: FEISHU_ERR_INVALID_TOKEN, msg: "Invalid token" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
       }
       if (messageBehavior === "error") {
-        return new Response(
-          JSON.stringify({ code: FEISHU_ERR_INTERNAL, msg: "Internal server error" }),
-          { status: 500, headers: { "Content-Type": "application/json" } },
-        );
+        return new Response(JSON.stringify({ code: FEISHU_ERR_INTERNAL, msg: "Internal server error" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
       }
-      return new Response(
-        JSON.stringify({ code: 0, msg: "ok" }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ code: 0, msg: "ok" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     return new Response("Not Found", { status: 404 });
@@ -164,7 +160,7 @@ describe("Integration: End-to-end notification flow", () => {
     expect(result).toBe(true);
 
     // Find message calls
-    const messageCalls = fetchCalls.filter(c => c.url.includes("/im/v1/messages"));
+    const messageCalls = fetchCalls.filter((c) => c.url.includes("/im/v1/messages"));
     expect(messageCalls.length).toBe(1);
     const messageCall = messageCalls[0]!;
 
@@ -206,7 +202,7 @@ describe("Integration: End-to-end notification flow", () => {
 
     expect(result).toBe(true);
 
-    const messageCalls = fetchCalls.filter(c => c.url.includes("/im/v1/messages"));
+    const messageCalls = fetchCalls.filter((c) => c.url.includes("/im/v1/messages"));
     expect(messageCalls.length).toBe(1);
     const messageCall = messageCalls[0]!;
 
@@ -235,7 +231,7 @@ describe("Integration: End-to-end notification flow", () => {
 
     expect(result).toBe(true);
 
-    const messageCalls = fetchCalls.filter(c => c.url.includes("/im/v1/messages"));
+    const messageCalls = fetchCalls.filter((c) => c.url.includes("/im/v1/messages"));
     expect(messageCalls.length).toBe(1);
     const messageCall = messageCalls[0]!;
 
@@ -266,7 +262,7 @@ describe("Integration: End-to-end notification flow", () => {
     expect(result).toBe(true);
 
     // Should have exactly 2 message calls (first failed with 401, second succeeded)
-    const messageCalls = fetchCalls.filter(c => c.url.includes("/im/v1/messages"));
+    const messageCalls = fetchCalls.filter((c) => c.url.includes("/im/v1/messages"));
     expect(messageCalls.length).toBe(2);
 
     // The second message call should have Authorization header
@@ -342,7 +338,7 @@ describe("Integration: End-to-end notification flow", () => {
 
     await sendNotification(config, card);
 
-    const messageCalls = fetchCalls.filter(c => c.url.includes("/im/v1/messages"));
+    const messageCalls = fetchCalls.filter((c) => c.url.includes("/im/v1/messages"));
     expect(messageCalls.length).toBe(1);
 
     // Authorization header must contain "Bearer " prefix
@@ -372,7 +368,7 @@ describe("Integration: End-to-end notification flow", () => {
 
     await sendNotification(config, card);
 
-    const messageCalls = fetchCalls.filter(c => c.url.includes("/im/v1/messages"));
+    const messageCalls = fetchCalls.filter((c) => c.url.includes("/im/v1/messages"));
     const msgBody = asMessageBody(messageCalls[0]!);
     const content = JSON.parse(msgBody.content) as CardPayload;
     expect(content.eventType).toBe("session.error");
@@ -393,7 +389,14 @@ describe("Integration: End-to-end notification flow", () => {
     };
 
     const themes: Array<CardPayload["theme"]> = [
-      "turquoise", "green", "yellow", "orange", "red", "blue", "wathet", "grey",
+      "turquoise",
+      "green",
+      "yellow",
+      "orange",
+      "red",
+      "blue",
+      "wathet",
+      "grey",
     ];
 
     for (const theme of themes) {
@@ -408,7 +411,7 @@ describe("Integration: End-to-end notification flow", () => {
     }
 
     // Should have 1 message call per theme
-    const messageCalls = fetchCalls.filter(c => c.url.includes("/im/v1/messages"));
+    const messageCalls = fetchCalls.filter((c) => c.url.includes("/im/v1/messages"));
     expect(messageCalls.length).toBe(themes.length);
 
     // Verify each call's content has the correct theme

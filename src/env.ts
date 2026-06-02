@@ -27,10 +27,7 @@ export async function readEnvFile(path: string): Promise<Record<string, string>>
       let value = trimmed.slice(eqIndex + 1).trim();
 
       // Strip surrounding quotes if present
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      ) {
+      if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
         value = value.slice(1, -1);
       }
 
@@ -62,8 +59,7 @@ export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
   }
 
   // Tier 3: XDG_CONFIG_HOME global .env file
-  const xdgConfigHome =
-    process.env["XDG_CONFIG_HOME"] ?? `${process.env["HOME"] ?? "/tmp"}/.config`;
+  const xdgConfigHome = process.env["XDG_CONFIG_HOME"] ?? `${process.env["HOME"] ?? "/tmp"}/.config`;
   const globalEnv = await readEnvFile(`${xdgConfigHome}/opencode/.env`);
   for (const [key, value] of Object.entries(globalEnv)) {
     if (!(key in envVars)) {
@@ -87,7 +83,12 @@ export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
     ...(userEmail && { userEmail }),
     ...(userOpenId && { userOpenId }),
     ...(userId && { userId }),
-    ...(eventsRaw && { events: eventsRaw.split(",").map(s => s.trim()).filter(Boolean) }),
+    ...(eventsRaw && {
+      events: eventsRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    }),
     rateLimitMs: rateLimitRaw ? parseInt(rateLimitRaw, 10) : DEFAULT_RATE_LIMIT_MS,
     cooldownMs: cooldownRaw ? parseInt(cooldownRaw, 10) : DEFAULT_COOLDOWN_MS,
   };
