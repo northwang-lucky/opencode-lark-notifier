@@ -64,6 +64,14 @@ bun test
 bun run build
 ```
 
+### 真实飞书集成测试
+
+根目录 `.env` 配置好飞书应用和目标用户后，可以执行真实请求测试。该测试会调用 `LarkNotifierPlugin`，向飞书 API 真实获取 token 并发送事件卡片消息；默认 `bun test` 会跳过它，避免在普通单测中误发通知。
+
+```bash
+bun run test:lark:real
+```
+
 ## License
 
 MIT

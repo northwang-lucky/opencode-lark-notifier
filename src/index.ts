@@ -7,7 +7,7 @@ import { sendNotification } from "./lark-client";
 import { createCooldown, createRateLimiter, DEFAULT_COOLDOWN_MS, DEFAULT_RATE_LIMIT_MS } from "./rate-limiter";
 import type { CardPayload } from "./types";
 
-const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
+export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
   const config = await loadConfig();
 
   // Graceful degradation: return empty hooks if config invalid
