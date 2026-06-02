@@ -1,5 +1,5 @@
-import type { LarkConfig, LarkTokenResponse, UserInfo } from "./types";
 import { createLogger } from "./logger";
+import type { LarkConfig, LarkTokenResponse, UserInfo } from "./types";
 
 const logger = createLogger({
   logLevel: (process.env.LARK_NOTIFIER_LOG_LEVEL ?? "INFO") as import("./types").LogLevel,

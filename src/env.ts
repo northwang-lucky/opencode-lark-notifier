@@ -59,7 +59,7 @@ export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
   }
 
   // Tier 3: XDG_CONFIG_HOME global .env file
-  const xdgConfigHome = process.env['XDG_CONFIG_HOME'] ?? `${process.env['HOME'] ?? "/tmp"}/.config`;
+  const xdgConfigHome = process.env["XDG_CONFIG_HOME"] ?? `${process.env["HOME"] ?? "/tmp"}/.config`;
   const globalEnv = await readEnvFile(`${xdgConfigHome}/opencode/.env`);
   for (const [key, value] of Object.entries(globalEnv)) {
     if (!(key in envVars)) {
@@ -68,14 +68,14 @@ export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
   }
 
   // Parse and construct config (conditionally include optional fields for exactOptionalPropertyTypes)
-  const appId = envVars['LARK_APP_ID'] ?? "";
-  const appSecret = envVars['LARK_APP_SECRET'] ?? "";
-  const userEmail = envVars['LARK_USER_EMAIL'];
-  const userOpenId = envVars['LARK_USER_OPEN_ID'];
-  const userId = envVars['LARK_USER_ID'];
-  const eventsRaw = envVars['LARK_NOTIFIER_EVENTS'];
-  const rateLimitRaw = envVars['LARK_NOTIFIER_RATE_LIMIT_MS'];
-  const cooldownRaw = envVars['LARK_NOTIFIER_COOLDOWN_MS'];
+  const appId = envVars["LARK_APP_ID"] ?? "";
+  const appSecret = envVars["LARK_APP_SECRET"] ?? "";
+  const userEmail = envVars["LARK_USER_EMAIL"];
+  const userOpenId = envVars["LARK_USER_OPEN_ID"];
+  const userId = envVars["LARK_USER_ID"];
+  const eventsRaw = envVars["LARK_NOTIFIER_EVENTS"];
+  const rateLimitRaw = envVars["LARK_NOTIFIER_RATE_LIMIT_MS"];
+  const cooldownRaw = envVars["LARK_NOTIFIER_COOLDOWN_MS"];
 
   return {
     appId,

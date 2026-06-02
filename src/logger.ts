@@ -1,6 +1,6 @@
 import { appendFile, mkdir, readdir, unlink } from "node:fs/promises";
 import path from "node:path";
-import type { CreateLoggerParams, LogLevel, Logger } from "./types";
+import type { CreateLoggerParams, Logger, LogLevel } from "./types";
 
 const MAX_LINE_LENGTH = 4096;
 
@@ -32,12 +32,7 @@ function formatDateOnly(date: Date): string {
   return `${Y}-${M}-${D}`;
 }
 
-function buildLine(
-  timestamp: string,
-  level: LogLevel,
-  moduleName: string,
-  msg: string,
-): string {
+function buildLine(timestamp: string, level: LogLevel, moduleName: string, msg: string): string {
   let clean = msg.replace(/\n/g, " ");
   if (clean.length > MAX_LINE_LENGTH) {
     clean = clean.slice(0, MAX_LINE_LENGTH);
@@ -49,9 +44,7 @@ function resolveLogDir(logDir: string): string {
   if (logDir !== "") return logDir;
 
   // Empty logDir: compute from XDG_STATE_HOME
-  const xdgStateHome =
-    process.env.XDG_STATE_HOME ??
-    `${process.env.HOME ?? "/tmp"}/.local/state`;
+  const xdgStateHome = process.env.XDG_STATE_HOME ?? `${process.env.HOME ?? "/tmp"}/.local/state`;
   return path.join(xdgStateHome, "opencode-lark-notifier", "logs");
 }
 

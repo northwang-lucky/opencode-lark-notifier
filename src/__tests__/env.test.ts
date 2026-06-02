@@ -1,5 +1,5 @@
-import { mkdir, rm } from "node:fs/promises";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { mkdir, rm } from "node:fs/promises";
 import { isConfigValid, loadConfig, readEnvFile } from "../env";
 import type { LarkConfig } from "../types";
 

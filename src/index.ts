@@ -39,7 +39,9 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
       const event = _e as Event;
       const { properties, type: eventType } = event;
 
-      logger.debug(`收到事件: type=${eventType}, session=${"sessionID" in properties ? (properties as Record<string, unknown>).sessionID : "N/A"}`);
+      logger.debug(
+        `收到事件: type=${eventType}, session=${"sessionID" in properties ? (properties as Record<string, unknown>).sessionID : "N/A"}`,
+      );
 
       // Handle session.status busy to reset cooldown
       if (eventType === "session.status") {
@@ -104,7 +106,9 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
           }
 
           case "question.asked": {
-            logger.info(`发送 question.asked 通知: session=${"sessionID" in properties ? (properties as Record<string, unknown>).sessionID : "N/A"}`);
+            logger.info(
+              `发送 question.asked 通知: session=${"sessionID" in properties ? (properties as Record<string, unknown>).sessionID : "N/A"}`,
+            );
             const questions = properties.questions
               ?.map((q) => q.question)
               .filter(Boolean)
