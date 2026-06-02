@@ -2,10 +2,11 @@
   "name": "opencode-lark-notifier",
   "version": "0.1.0",
   "description": "opencode plugin for lark notifications",
+  "main": "./dist/index.js",
   "module": "src/index.ts",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./dist/index.js"
   },
   "scripts": {
     "dev": "bun run src/index.ts",
