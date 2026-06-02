@@ -60,3 +60,22 @@ export interface ConfigValidationResult {
   valid: boolean;
   reason?: string;
 }
+
+// Log levels for file-based logging
+export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR";
+
+// Logger interface for structured logging
+export interface Logger {
+  debug(msg: string): void;
+  info(msg: string): void;
+  warn(msg: string): void;
+  error(msg: string): void;
+}
+
+// Parameters for creating a logger instance
+export interface CreateLoggerParams {
+  logLevel: LogLevel;
+  logDir: string;
+  moduleName: string;
+  maxRetentionDays: number;
+}
