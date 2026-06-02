@@ -1,5 +1,5 @@
-import { describe, test, expect } from "bun:test";
-import { createRateLimiter, createCooldown, DEFAULT_RATE_LIMIT_MS, DEFAULT_COOLDOWN_MS } from "../rate-limiter";
+import { describe, expect, test } from "bun:test";
+import { createCooldown, createRateLimiter, DEFAULT_COOLDOWN_MS, DEFAULT_RATE_LIMIT_MS } from "../rate-limiter";
 
 describe("createRateLimiter", () => {
   test("allows first send", () => {

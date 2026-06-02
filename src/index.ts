@@ -1,9 +1,9 @@
-import type { Plugin, PluginInput, Hooks } from "@opencode-ai/plugin";
-import type { CardPayload } from "./types";
-import { loadConfig, isConfigValid } from "./env";
-import { sendNotification } from "./lark-client";
+import type { Hooks, Plugin, PluginInput } from "@opencode-ai/plugin";
 import { buildCard } from "./cards";
-import { createRateLimiter, createCooldown, DEFAULT_RATE_LIMIT_MS, DEFAULT_COOLDOWN_MS } from "./rate-limiter";
+import { isConfigValid, loadConfig } from "./env";
+import { sendNotification } from "./lark-client";
+import { createCooldown, createRateLimiter, DEFAULT_COOLDOWN_MS, DEFAULT_RATE_LIMIT_MS } from "./rate-limiter";
+import type { CardPayload } from "./types";
 
 const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
   const config = await loadConfig();

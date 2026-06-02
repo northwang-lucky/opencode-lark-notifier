@@ -1,4 +1,4 @@
-import type { CardTheme, CardPayload } from "./types";
+import type { CardPayload, CardTheme } from "./types";
 
 const MAX_TITLE_LENGTH = 200;
 const MAX_CONTENT_LENGTH = 2000;
@@ -41,7 +41,7 @@ export function escapeMarkdown(text: string): string {
  */
 export function truncate(text: string, maxLen: number): string {
   if (text.length <= maxLen) return text;
-  return text.slice(0, maxLen - 3) + "...";
+  return `${text.slice(0, maxLen - 3)}...`;
 }
 
 /**

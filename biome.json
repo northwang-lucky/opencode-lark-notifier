@@ -24,7 +24,8 @@
         "noUnusedImports": "error"
       },
       "style": {
-        "useImportType": "error"
+        "useImportType": "error",
+        "noNonNullAssertion": "off"
       },
       "suspicious": {
         "noConsole": "warn"

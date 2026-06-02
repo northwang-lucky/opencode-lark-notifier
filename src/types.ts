@@ -1,6 +1,7 @@
 // Re-export OpenCode plugin types
-import type { Plugin, PluginInput, Hooks } from "@opencode-ai/plugin";
-export type { Plugin, PluginInput, Hooks };
+import type { Hooks, Plugin, PluginInput } from "@opencode-ai/plugin";
+
+export type { Hooks, Plugin, PluginInput };
 
 // Lark (Feishu) configuration
 export interface LarkConfig {

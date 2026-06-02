@@ -1,4 +1,4 @@
-import type { LarkConfig, CardPayload, UserInfo, LarkTokenResponse } from "./types";
+import type { CardPayload, LarkConfig, LarkTokenResponse, UserInfo } from "./types";
 
 const LARK_API_BASE = "https://open.feishu.cn/open-apis";
 const TOKEN_REFRESH_THRESHOLD_MS = 60 * 1000; // Refresh 60s before expiry

@@ -1,6 +1,6 @@
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { sendNotification } from "../lark-client";
-import type { LarkConfig, CardPayload } from "../types";
+import type { CardPayload, LarkConfig } from "../types";
 
 const originalFetch = global.fetch;
 
@@ -167,7 +167,7 @@ describe("Integration: End-to-end notification flow", () => {
     // Verify message endpoint
     expect(messageCall.url).toContain("receive_id_type=email");
     expect(messageCall.method).toBe("POST");
-    expect(messageCall.headers["Authorization"]).toBe("Bearer t-mock-token");
+    expect(messageCall.headers.Authorization).toBe("Bearer t-mock-token");
     expect(messageCall.headers["Content-Type"]).toBe("application/json");
 
     // Verify message body structure
@@ -268,7 +268,7 @@ describe("Integration: End-to-end notification flow", () => {
     // The second message call should have Authorization header
     const firstCall = messageCalls[0]!;
     const secondCall = messageCalls[1]!;
-    expect(secondCall.headers["Authorization"]).toBe("Bearer t-mock-token");
+    expect(secondCall.headers.Authorization).toBe("Bearer t-mock-token");
     const secondBody = asMessageBody(secondCall);
     expect(secondBody.receive_id).toBe("test@example.com");
     expect(secondBody.msg_type).toBe("interactive");
@@ -342,7 +342,7 @@ describe("Integration: End-to-end notification flow", () => {
     expect(messageCalls.length).toBe(1);
 
     // Authorization header must contain "Bearer " prefix
-    const authHeader = messageCalls[0]!.headers["Authorization"];
+    const authHeader = messageCalls[0]?.headers.Authorization;
     expect(authHeader).toMatch(/^Bearer .+$/);
     expect(authHeader).not.toBe("Bearer undefined");
   });

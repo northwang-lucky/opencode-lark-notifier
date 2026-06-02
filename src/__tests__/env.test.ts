@@ -1,5 +1,5 @@
-import { describe, test, expect, afterEach } from "bun:test";
-import { readEnvFile, loadConfig, isConfigValid } from "../env";
+import { afterEach, describe, expect, test } from "bun:test";
+import { isConfigValid, loadConfig, readEnvFile } from "../env";
 import type { LarkConfig } from "../types";
 
 describe("readEnvFile", () => {
@@ -8,8 +8,8 @@ describe("readEnvFile", () => {
     await Bun.write(tmpFile, "FOO=bar\nBAZ=qux");
 
     const result = await readEnvFile(tmpFile);
-    expect(result["FOO"]).toBe("bar");
-    expect(result["BAZ"]).toBe("qux");
+    expect(result.FOO).toBe("bar");
+    expect(result.BAZ).toBe("qux");
 
     await Bun.file(tmpFile).delete();
   });
@@ -19,8 +19,8 @@ describe("readEnvFile", () => {
     await Bun.write(tmpFile, "FOO=\"bar\"\nBAZ='qux'");
 
     const result = await readEnvFile(tmpFile);
-    expect(result["FOO"]).toBe("bar");
-    expect(result["BAZ"]).toBe("qux");
+    expect(result.FOO).toBe("bar");
+    expect(result.BAZ).toBe("qux");
 
     await Bun.file(tmpFile).delete();
   });
@@ -30,8 +30,8 @@ describe("readEnvFile", () => {
     await Bun.write(tmpFile, "# comment\n\nFOO=bar\n# another comment\nBAZ=qux");
 
     const result = await readEnvFile(tmpFile);
-    expect(result["FOO"]).toBe("bar");
-    expect(result["BAZ"]).toBe("qux");
+    expect(result.FOO).toBe("bar");
+    expect(result.BAZ).toBe("qux");
     expect(result["# comment"]).toBeUndefined();
 
     await Bun.file(tmpFile).delete();
@@ -42,8 +42,8 @@ describe("readEnvFile", () => {
     await Bun.write(tmpFile, "  FOO = bar  \nBAZ=qux");
 
     const result = await readEnvFile(tmpFile);
-    expect(result["FOO"]).toBe("bar");
-    expect(result["BAZ"]).toBe("qux");
+    expect(result.FOO).toBe("bar");
+    expect(result.BAZ).toBe("qux");
 
     await Bun.file(tmpFile).delete();
   });
@@ -53,8 +53,8 @@ describe("readEnvFile", () => {
     await Bun.write(tmpFile, "FOO=bar\ninvalidline\nBAZ=qux");
 
     const result = await readEnvFile(tmpFile);
-    expect(result["FOO"]).toBe("bar");
-    expect(result["BAZ"]).toBe("qux");
+    expect(result.FOO).toBe("bar");
+    expect(result.BAZ).toBe("qux");
 
     await Bun.file(tmpFile).delete();
   });
@@ -111,22 +111,22 @@ describe("loadConfig", () => {
 
   afterEach(() => {
     // Restore original env — delete only what we might have set
-    delete process.env["LARK_APP_ID"];
-    delete process.env["LARK_APP_SECRET"];
-    delete process.env["LARK_USER_EMAIL"];
-    delete process.env["LARK_USER_OPEN_ID"];
-    delete process.env["LARK_USER_ID"];
-    delete process.env["LARK_NOTIFIER_EVENTS"];
-    delete process.env["LARK_NOTIFIER_RATE_LIMIT_MS"];
-    delete process.env["LARK_NOTIFIER_COOLDOWN_MS"];
+    delete process.env.LARK_APP_ID;
+    delete process.env.LARK_APP_SECRET;
+    delete process.env.LARK_USER_EMAIL;
+    delete process.env.LARK_USER_OPEN_ID;
+    delete process.env.LARK_USER_ID;
+    delete process.env.LARK_NOTIFIER_EVENTS;
+    delete process.env.LARK_NOTIFIER_RATE_LIMIT_MS;
+    delete process.env.LARK_NOTIFIER_COOLDOWN_MS;
     for (const key of Object.keys(originalEnv)) {
       process.env[key] = originalEnv[key];
     }
   });
 
   test("reads required fields from process.env", async () => {
-    process.env["LARK_APP_ID"] = "test-id";
-    process.env["LARK_APP_SECRET"] = "test-secret";
+    process.env.LARK_APP_ID = "test-id";
+    process.env.LARK_APP_SECRET = "test-secret";
 
     const config = await loadConfig();
     expect(config.appId).toBe("test-id");
@@ -134,8 +134,8 @@ describe("loadConfig", () => {
   });
 
   test("uses default values for optional numeric fields", async () => {
-    process.env["LARK_APP_ID"] = "test-id";
-    process.env["LARK_APP_SECRET"] = "test-secret";
+    process.env.LARK_APP_ID = "test-id";
+    process.env.LARK_APP_SECRET = "test-secret";
 
     const config = await loadConfig();
     expect(config.rateLimitMs).toBe(30000);
@@ -143,29 +143,29 @@ describe("loadConfig", () => {
   });
 
   test("parses events from comma-separated string", async () => {
-    process.env["LARK_APP_ID"] = "test-id";
-    process.env["LARK_APP_SECRET"] = "test-secret";
-    process.env["LARK_NOTIFIER_EVENTS"] = "session.created, session.deleted";
+    process.env.LARK_APP_ID = "test-id";
+    process.env.LARK_APP_SECRET = "test-secret";
+    process.env.LARK_NOTIFIER_EVENTS = "session.created, session.deleted";
 
     const config = await loadConfig();
     expect(config.events).toEqual(["session.created", "session.deleted"]);
   });
 
   test("filters empty event tokens", async () => {
-    process.env["LARK_APP_ID"] = "test-id";
-    process.env["LARK_APP_SECRET"] = "test-secret";
-    process.env["LARK_NOTIFIER_EVENTS"] = "a,,b, ,c";
+    process.env.LARK_APP_ID = "test-id";
+    process.env.LARK_APP_SECRET = "test-secret";
+    process.env.LARK_NOTIFIER_EVENTS = "a,,b, ,c";
 
     const config = await loadConfig();
     expect(config.events).toEqual(["a", "b", "c"]);
   });
 
   test("reads optional user fields", async () => {
-    process.env["LARK_APP_ID"] = "test-id";
-    process.env["LARK_APP_SECRET"] = "test-secret";
-    process.env["LARK_USER_EMAIL"] = "user@example.com";
-    process.env["LARK_USER_OPEN_ID"] = "ou_xxx";
-    process.env["LARK_USER_ID"] = "uid_xxx";
+    process.env.LARK_APP_ID = "test-id";
+    process.env.LARK_APP_SECRET = "test-secret";
+    process.env.LARK_USER_EMAIL = "user@example.com";
+    process.env.LARK_USER_OPEN_ID = "ou_xxx";
+    process.env.LARK_USER_ID = "uid_xxx";
 
     const config = await loadConfig();
     expect(config.userEmail).toBe("user@example.com");
@@ -174,10 +174,10 @@ describe("loadConfig", () => {
   });
 
   test("parses custom rate limit and cooldown", async () => {
-    process.env["LARK_APP_ID"] = "test-id";
-    process.env["LARK_APP_SECRET"] = "test-secret";
-    process.env["LARK_NOTIFIER_RATE_LIMIT_MS"] = "60000";
-    process.env["LARK_NOTIFIER_COOLDOWN_MS"] = "10000";
+    process.env.LARK_APP_ID = "test-id";
+    process.env.LARK_APP_SECRET = "test-secret";
+    process.env.LARK_NOTIFIER_RATE_LIMIT_MS = "60000";
+    process.env.LARK_NOTIFIER_COOLDOWN_MS = "10000";
 
     const config = await loadConfig();
     expect(config.rateLimitMs).toBe(60000);

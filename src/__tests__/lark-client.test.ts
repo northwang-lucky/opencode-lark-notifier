@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { resolveUser, sendCardMessage } from "../lark-client";
 import type { LarkConfig } from "../types";
 

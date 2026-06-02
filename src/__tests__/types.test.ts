@@ -1,14 +1,14 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import type {
-  LarkConfig,
-  NotifierConfig,
   CardPayload,
   CardTheme,
-  EventType,
-  UserInfo,
-  LarkApiError,
-  LarkTokenResponse,
   ConfigValidationResult,
+  EventType,
+  LarkApiError,
+  LarkConfig,
+  LarkTokenResponse,
+  NotifierConfig,
+  UserInfo,
 } from "../types";
 
 describe("LarkConfig", () => {

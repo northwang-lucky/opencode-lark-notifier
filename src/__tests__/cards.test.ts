@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { buildCard, escapeMarkdown, truncate } from "../cards";
 import type { CardPayload } from "../types";
 
@@ -31,7 +31,7 @@ describe("truncate", () => {
 
   test("truncates long text with ellipsis", () => {
     const text = "a".repeat(300);
-    expect(truncate(text, 100)).toBe("a".repeat(97) + "...");
+    expect(truncate(text, 100)).toBe(`${"a".repeat(97)}...`);
   });
 
   test("returns empty string for empty input", () => {
@@ -45,7 +45,7 @@ describe("truncate", () => {
 
   test("handles text one char over maxLen", () => {
     const text = "a".repeat(101);
-    expect(truncate(text, 100)).toBe("a".repeat(97) + "...");
+    expect(truncate(text, 100)).toBe(`${"a".repeat(97)}...`);
   });
 });
 
