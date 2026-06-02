@@ -1,4 +1,12 @@
 import type { LarkConfig, LarkTokenResponse, UserInfo } from "./types";
+import { createLogger } from "./logger";
+
+const logger = createLogger({
+  logLevel: (process.env.LARK_NOTIFIER_LOG_LEVEL ?? "INFO") as import("./types").LogLevel,
+  logDir: "",
+  moduleName: "lark-client",
+  maxRetentionDays: 7,
+});
 
 const LARK_API_BASE = "https://open.feishu.cn/open-apis";
 const TOKEN_REFRESH_THRESHOLD_MS = 60 * 1000; // Refresh 60s before expiry
@@ -17,6 +25,7 @@ export async function getToken(config: LarkConfig): Promise<string> {
 
   // Return cached token if still valid (with 60s buffer)
   if (tokenPromise && now < tokenExpiry - TOKEN_REFRESH_THRESHOLD_MS) {
+    logger.debug("token获取成功（缓存命中）");
     return tokenPromise;
   }
 
@@ -35,6 +44,7 @@ export async function getToken(config: LarkConfig): Promise<string> {
       return data.tenant_access_token;
     })
     .catch((err) => {
+      logger.error(`token获取失败: ${err instanceof Error ? err.message : String(err)}`);
       tokenPromise = null;
       throw err;
     });
@@ -93,6 +103,7 @@ export async function sendCardMessage(token: string, user: UserInfo, cardJson: s
     const data = (await res.json()) as { code: number; msg: string };
     return data.code === 0;
   } catch {
+    logger.warn("消息发送超时或网络错误");
     return false;
   } finally {
     clearTimeout(timeout);
@@ -105,18 +116,27 @@ export async function sendCardMessage(token: string, user: UserInfo, cardJson: s
  */
 export async function sendNotification(config: LarkConfig, cardJson: string): Promise<boolean> {
   const user = resolveUser(config);
-  if (!user) return false;
+  if (!user) {
+    logger.warn("未配置用户标识，跳过发送");
+    return false;
+  }
 
   const token = await getToken(config);
 
   const success = await sendCardMessage(token, user, cardJson);
 
+  if (success) {
+    logger.info("消息发送成功");
+  }
+
   // Retry once on failure (could be expired token)
   if (!success) {
+    logger.warn("消息发送失败(401)，正在重试token...");
     try {
       const newToken = await getToken(config);
       return await sendCardMessage(newToken, user, cardJson);
     } catch {
+      logger.error("消息发送失败: 重试后仍失败");
       return false;
     }
   }
