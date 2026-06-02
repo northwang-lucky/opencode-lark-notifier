@@ -8,7 +8,7 @@ import { createLogger } from "./logger";
 import { createCooldown, createRateLimiter, DEFAULT_COOLDOWN_MS, DEFAULT_RATE_LIMIT_MS } from "./rate-limiter";
 import type { CardPayload } from "./types";
 
-export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
+export const LarkNotifierPlugin: Plugin = async (input: PluginInput): Promise<Hooks> => {
   const { client } = input;
   void client.app.log({
     body: {
@@ -184,7 +184,7 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
         });
       }
     },
-  } as Hooks;
+  };
 };
 
 export default {
