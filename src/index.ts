@@ -9,6 +9,15 @@ import { createCooldown, createRateLimiter, DEFAULT_COOLDOWN_MS, DEFAULT_RATE_LI
 import type { CardPayload } from "./types";
 
 export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
+  const { client } = input;
+  void client.app.log({
+    body: {
+      service: "opencode-lark-notifier",
+      level: "info",
+      message: "🚀 插件正在启动...",
+    },
+  });
+
   const config = await loadConfig();
 
   const logger = createLogger({
@@ -18,16 +27,27 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
     maxRetentionDays: 7,
   });
 
+  logger.info("插件已加载，开始初始化...");
+
   // Graceful degradation: return empty hooks if config invalid
   const validation = isConfigValid(config);
   if (!validation.valid) {
-    logger.warn(`配置无效，跳过启动: ${validation.reason}`);
+    const msg = `配置无效，跳过启动: ${validation.reason}`;
+    logger.warn(msg);
+    void client.app.log({
+      body: {
+        service: "opencode-lark-notifier",
+        level: "warn",
+        message: msg,
+      },
+    });
     return {};
   }
 
+  logger.info("配置验证通过");
+
   const rateLimiter = createRateLimiter(config.rateLimitMs ?? DEFAULT_RATE_LIMIT_MS);
   const cooldown = createCooldown(config.cooldownMs ?? DEFAULT_COOLDOWN_MS);
-  const { client } = input;
 
   // Build list of events to listen to
   const defaultEvents = ["session.idle", "session.error", "question.asked", "permission.asked"];
