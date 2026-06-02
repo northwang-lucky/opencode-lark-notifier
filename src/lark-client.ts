@@ -1,4 +1,4 @@
-import type { CardPayload, LarkConfig, LarkTokenResponse, UserInfo } from "./types";
+import type { LarkConfig, LarkTokenResponse, UserInfo } from "./types";
 
 const LARK_API_BASE = "https://open.feishu.cn/open-apis";
 const TOKEN_REFRESH_THRESHOLD_MS = 60 * 1000; // Refresh 60s before expiry
@@ -103,12 +103,11 @@ export async function sendCardMessage(token: string, user: UserInfo, cardJson: s
  * Unified entry point: get token → resolve user → send card.
  * Returns true if message sent successfully.
  */
-export async function sendNotification(config: LarkConfig, card: CardPayload): Promise<boolean> {
+export async function sendNotification(config: LarkConfig, cardJson: string): Promise<boolean> {
   const user = resolveUser(config);
   if (!user) return false;
 
   const token = await getToken(config);
-  const cardJson = JSON.stringify(card);
 
   const success = await sendCardMessage(token, user, cardJson);
 

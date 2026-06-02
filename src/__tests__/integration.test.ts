@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { buildCard } from "../cards";
 import { sendNotification } from "../lark-client";
 import type { CardPayload, LarkConfig } from "../types";
 
@@ -155,7 +156,7 @@ describe("Integration: End-to-end notification flow", () => {
       sessionId: "ses-123",
     };
 
-    const result = await sendNotification(config, card);
+    const result = await sendNotification(config, buildCard(card));
 
     expect(result).toBe(true);
 
@@ -175,12 +176,10 @@ describe("Integration: End-to-end notification flow", () => {
     expect(msgBody.receive_id).toBe("test@example.com");
     expect(msgBody.msg_type).toBe("interactive");
 
-    // Content should be the JSON-stringified card
-    const content = JSON.parse(msgBody.content) as CardPayload;
-    expect(content.eventType).toBe("session.error");
-    expect(content.content).toBe("Test error message");
-    expect(content.theme).toBe("red");
-    expect(content.sessionId).toBe("ses-123");
+    const content = JSON.parse(msgBody.content);
+    expect(content.schema).toBe("2.0");
+    expect(content.header.template).toBe("red");
+    expect(content.body.elements[0].content).toBe("Test error message");
   });
 
   test("complete flow with open_id fallback", async () => {
@@ -198,7 +197,7 @@ describe("Integration: End-to-end notification flow", () => {
       theme: "turquoise",
     };
 
-    const result = await sendNotification(config, card);
+    const result = await sendNotification(config, buildCard(card));
 
     expect(result).toBe(true);
 
@@ -227,7 +226,7 @@ describe("Integration: End-to-end notification flow", () => {
       theme: "yellow",
     };
 
-    const result = await sendNotification(config, card);
+    const result = await sendNotification(config, buildCard(card));
 
     expect(result).toBe(true);
 
@@ -256,7 +255,7 @@ describe("Integration: End-to-end notification flow", () => {
       theme: "yellow",
     };
 
-    const result = await sendNotification(config, card);
+    const result = await sendNotification(config, buildCard(card));
 
     // Should succeed after retry
     expect(result).toBe(true);
@@ -293,7 +292,7 @@ describe("Integration: End-to-end notification flow", () => {
       theme: "orange",
     };
 
-    const result = await sendNotification(config, card);
+    const result = await sendNotification(config, buildCard(card));
 
     expect(result).toBe(false);
     // No API calls should be made when no user is configured
@@ -315,7 +314,7 @@ describe("Integration: End-to-end notification flow", () => {
       theme: "red",
     };
 
-    const result = await sendNotification(config, card);
+    const result = await sendNotification(config, buildCard(card));
 
     expect(result).toBe(false);
     expect(fetchCalls).toHaveLength(0);
@@ -336,7 +335,7 @@ describe("Integration: End-to-end notification flow", () => {
       theme: "turquoise",
     };
 
-    await sendNotification(config, card);
+    await sendNotification(config, buildCard(card));
 
     const messageCalls = fetchCalls.filter((c) => c.url.includes("/im/v1/messages"));
     expect(messageCalls.length).toBe(1);
@@ -366,17 +365,16 @@ describe("Integration: End-to-end notification flow", () => {
       note: "Custom note text",
     };
 
-    await sendNotification(config, card);
+    await sendNotification(config, buildCard(card));
 
     const messageCalls = fetchCalls.filter((c) => c.url.includes("/im/v1/messages"));
     const msgBody = asMessageBody(messageCalls[0]!);
-    const content = JSON.parse(msgBody.content) as CardPayload;
-    expect(content.eventType).toBe("session.error");
-    expect(content.title).toBe("Custom Title");
-    expect(content.content).toBe("Custom content with **markdown**");
-    expect(content.theme).toBe("red");
-    expect(content.sessionId).toBe("ses-abc-123");
-    expect(content.note).toBe("Custom note text");
+    const content = JSON.parse(msgBody.content);
+    expect(content.schema).toBe("2.0");
+    expect(content.header.title.content).toBe("Custom Title");
+    expect(content.header.template).toBe("red");
+    expect(content.body.elements[0].content).toBe("Custom content with \\*\\*markdown\\*\\*");
+    expect(content.body.elements[2].elements[0].content).toBe("Custom note text");
   });
 
   test("handles all eight card themes correctly", async () => {
@@ -406,7 +404,7 @@ describe("Integration: End-to-end notification flow", () => {
         theme,
       };
 
-      const result = await sendNotification(config, card);
+      const result = await sendNotification(config, buildCard(card));
       expect(result).toBe(true);
     }
 
@@ -417,8 +415,8 @@ describe("Integration: End-to-end notification flow", () => {
     // Verify each call's content has the correct theme
     for (let i = 0; i < themes.length; i++) {
       const msgBody = asMessageBody(messageCalls[i]!);
-      const msgContent = JSON.parse(msgBody.content) as CardPayload;
-      expect(msgContent.theme).toBe(themes[i]!);
+      const msgContent = JSON.parse(msgBody.content);
+      expect(msgContent.header.template).toBe(themes[i]!);
     }
   });
 });

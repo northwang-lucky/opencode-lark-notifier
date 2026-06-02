@@ -67,7 +67,7 @@ const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
                   theme: "turquoise",
                   sessionId: sessionID,
                 };
-                await sendNotification(config, card);
+                await sendNotification(config, buildCard(card));
               },
               config.cooldownMs ?? DEFAULT_COOLDOWN_MS,
               properties.sessionID,
@@ -126,7 +126,7 @@ const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
 
         // Build card and send (fire-and-forget)
         const cardJson = buildCard(cardPayload);
-        void sendNotification(config, JSON.parse(cardJson) as CardPayload).catch(() => {
+        void sendNotification(config, cardJson).catch(() => {
           // Silently fail - don't block event loop
         });
       } catch (err) {
