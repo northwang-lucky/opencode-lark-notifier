@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { readdir, readFile, rm } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { buildCard } from "../cards";
-import { createLogger } from "../logger";
 import { sendNotification } from "../lark-client";
 import type { CardPayload, LarkConfig } from "../types";
 

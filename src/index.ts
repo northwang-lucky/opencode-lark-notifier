@@ -4,14 +4,24 @@ import type { Event } from "@opencode-ai/sdk/v2";
 import { buildCard } from "./cards";
 import { isConfigValid, loadConfig } from "./env";
 import { sendNotification } from "./lark-client";
+import { createLogger } from "./logger";
 import { createCooldown, createRateLimiter, DEFAULT_COOLDOWN_MS, DEFAULT_RATE_LIMIT_MS } from "./rate-limiter";
 import type { CardPayload } from "./types";
 
 export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
   const config = await loadConfig();
 
+  const logger = createLogger({
+    logLevel: (process.env.LARK_NOTIFIER_LOG_LEVEL ?? "INFO") as import("./types").LogLevel,
+    logDir: "",
+    moduleName: "notifier",
+    maxRetentionDays: 7,
+  });
+
   // Graceful degradation: return empty hooks if config invalid
-  if (!isConfigValid(config).valid) {
+  const validation = isConfigValid(config);
+  if (!validation.valid) {
+    logger.warn(`配置无效，跳过启动: ${validation.reason}`);
     return {};
   }
 
@@ -29,6 +39,8 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
       const event = _e as Event;
       const { properties, type: eventType } = event;
 
+      logger.debug(`收到事件: type=${eventType}, session=${"sessionID" in properties ? (properties as Record<string, unknown>).sessionID : "N/A"}`);
+
       // Handle session.status busy to reset cooldown
       if (eventType === "session.status") {
         if (properties.status.type === "busy") {
@@ -39,13 +51,15 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
 
       // Skip events we're not listening to
       if (!listenEvents.has(eventType)) {
+        logger.debug(`跳过非监听事件: ${eventType}`);
         return;
       }
 
       // Rate limiting check
       if ("sessionID" in properties) {
-        const rateKey = `${eventType}:${properties.sessionID ?? "global"}`;
+        const rateKey = `${eventType}:${"sessionID" in properties ? (properties as Record<string, unknown>).sessionID : "global"}`;
         if (!rateLimiter.canSend(rateKey)) {
+          logger.info(`速率限制拦截: ${rateKey}`);
           return;
         }
       }
@@ -61,6 +75,7 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
             setTimeout(
               async (sessionID: string) => {
                 if (!cooldown.shouldNotify(sessionID)) return;
+                logger.info(`session.idle 冷却到期: session=${sessionID}`);
                 const card: CardPayload = {
                   eventType: "session.idle",
                   content: "OpenCode 已完成当前任务，等待你的下一步操作。",
@@ -77,6 +92,7 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
 
           case "session.error": {
             const errorMessage = properties.error?.data?.message;
+            logger.info(`发送 session.error 通知: ${errorMessage ?? "未知错误"}`);
             const { sessionID } = properties;
             cardPayload = {
               eventType: "session.error",
@@ -88,6 +104,7 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
           }
 
           case "question.asked": {
+            logger.info(`发送 question.asked 通知: session=${"sessionID" in properties ? (properties as Record<string, unknown>).sessionID : "N/A"}`);
             const questions = properties.questions
               ?.map((q) => q.question)
               .filter(Boolean)
@@ -102,6 +119,7 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
           }
 
           case "permission.asked": {
+            logger.info(`发送 permission.asked 通知: ${properties.permission ?? "未知权限"}`);
             cardPayload = {
               eventType: "permission.asked",
               content: `需要授权：${properties.permission ?? "未知权限"}`,
@@ -113,6 +131,7 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
 
           // Custom events
           default: {
+            logger.info(`发送自定义事件通知: ${eventType}`);
             cardPayload = {
               eventType: eventType,
               content: `收到事件：${eventType}`,
@@ -126,11 +145,12 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
 
         // Build card and send (fire-and-forget)
         const cardJson = buildCard(cardPayload);
-        void sendNotification(config, cardJson).catch(() => {
-          // Silently fail - don't block event loop
+        void sendNotification(config, cardJson).catch((err) => {
+          logger.warn(`fire-and-forget 发送失败: ${err instanceof Error ? err.message : String(err)}`);
         });
       } catch (err) {
         // Log error but don't crash
+        logger.error(`事件处理异常: ${err instanceof Error ? err.message : String(err)}`);
         void client.app.log({
           body: {
             service: "opencode-lark-notifier",
