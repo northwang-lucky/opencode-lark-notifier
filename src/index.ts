@@ -58,16 +58,20 @@ const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
             cooldown.idle(properties.sessionID);
             // Don't send immediately - wait for cooldown
             // Use setTimeout to check after cooldown
-            setTimeout(async () => {
-              if (!cooldown.shouldNotify(properties.sessionID)) return;
-              const card: CardPayload = {
-                eventType: "session.idle",
-                content: "OpenCode 已完成当前任务，等待你的下一步操作。",
-                theme: "turquoise",
-                sessionId: properties.sessionID,
-              };
-              await sendNotification(config, card);
-            }, config.cooldownMs ?? DEFAULT_COOLDOWN_MS);
+            setTimeout(
+              async (sessionID: string) => {
+                if (!cooldown.shouldNotify(sessionID)) return;
+                const card: CardPayload = {
+                  eventType: "session.idle",
+                  content: "OpenCode 已完成当前任务，等待你的下一步操作。",
+                  theme: "turquoise",
+                  sessionId: sessionID,
+                };
+                await sendNotification(config, card);
+              },
+              config.cooldownMs ?? DEFAULT_COOLDOWN_MS,
+              properties.sessionID,
+            );
             return;
           }
 
