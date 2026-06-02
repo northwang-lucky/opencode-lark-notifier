@@ -1,6 +1,6 @@
+import { afterEach, describe, expect, test } from "bun:test";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { afterEach, describe, expect, test } from "bun:test";
 import { createLogger } from "../logger";
 import type { Logger } from "../types";
 
@@ -20,8 +20,7 @@ function freezeTime(dateStr: string): () => void {
       if (args.length === 0) {
         super(fixedMs);
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        super(...(args as [any]));
+        super(...(args as ConstructorParameters<typeof Date>));
       }
     }
     static override now(): number {
@@ -47,12 +46,8 @@ async function flushWrites(): Promise<void> {
 async function readAllLogs(logDir: string): Promise<string> {
   try {
     const entries = await readdir(logDir);
-    const logFiles = entries
-      .filter((f) => f.endsWith(".log"))
-      .sort();
-    const contents = await Promise.all(
-      logFiles.map((f) => readFile(path.join(logDir, f), "utf-8")),
-    );
+    const logFiles = entries.filter((f) => f.endsWith(".log")).sort();
+    const contents = await Promise.all(logFiles.map((f) => readFile(path.join(logDir, f), "utf-8")));
     return contents.join("");
   } catch {
     return "";
@@ -372,9 +367,9 @@ describe("logger old file cleanup", () => {
     // Create fake old log files (8 days old, 7 days old, and 1 day old)
     await writeFile(path.join(logDir, "2026-05-24.log"), "old entry 1\n"); // 9 days ago
     await writeFile(path.join(logDir, "2026-05-25.log"), "old entry 2\n"); // 8 days ago
-    await writeFile(path.join(logDir, "2026-05-26.log"), "almost old\n");   // 7 days ago (boundary)
-    await writeFile(path.join(logDir, "2026-06-01.log"), "recent 1\n");     // 1 day ago
-    await writeFile(path.join(logDir, "other-file.txt"), "not a log\n");    // Non-log file
+    await writeFile(path.join(logDir, "2026-05-26.log"), "almost old\n"); // 7 days ago (boundary)
+    await writeFile(path.join(logDir, "2026-06-01.log"), "recent 1\n"); // 1 day ago
+    await writeFile(path.join(logDir, "other-file.txt"), "not a log\n"); // Non-log file
 
     // "Now" is June 2 — trigger a write to invoke cleanup
     const restore = freezeTime("2026-06-02T10:00:00");
@@ -390,9 +385,9 @@ describe("logger old file cleanup", () => {
     // Files 8+ days old should be deleted, 7 days (May 26) should stay
     expect(entries).not.toContain("2026-05-24.log"); // 9 days → deleted
     expect(entries).not.toContain("2026-05-25.log"); // 8 days → deleted
-    expect(entries).toContain("2026-05-26.log");      // 7 days (boundary) → kept
-    expect(entries).toContain("2026-06-01.log");      // 1 day → kept
-    expect(entries).toContain("other-file.txt");       // Non-log → untouched
+    expect(entries).toContain("2026-05-26.log"); // 7 days (boundary) → kept
+    expect(entries).toContain("2026-06-01.log"); // 1 day → kept
+    expect(entries).toContain("other-file.txt"); // Non-log → untouched
   });
 });
 
