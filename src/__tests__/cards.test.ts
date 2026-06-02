@@ -112,8 +112,8 @@ describe("buildCard", () => {
     const card = buildCard(payload);
     const parsed = JSON.parse(card);
     const noteElement = parsed.body.elements[2];
-    expect(noteElement.tag).toBe("note");
-    expect(noteElement.elements[0].content).toBe("opencode-lark-notifier");
+    expect(noteElement.tag).toBe("markdown");
+    expect(noteElement.content).toBe("opencode-lark-notifier");
   });
 
   test("includes custom note when provided", () => {
@@ -127,7 +127,7 @@ describe("buildCard", () => {
     const card = buildCard(payload);
     const parsed = JSON.parse(card);
     const noteElement = parsed.body.elements[2];
-    expect(noteElement.elements[0].content).toBe("My custom note");
+    expect(noteElement.content).toBe("My custom note");
   });
 
   test("includes horizontal rule as second element", () => {

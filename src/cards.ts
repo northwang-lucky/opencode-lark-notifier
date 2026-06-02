@@ -76,13 +76,8 @@ export function buildCard(payload: CardPayload): string {
           tag: "hr",
         },
         {
-          tag: "note",
-          elements: [
-            {
-              tag: "plain_text",
-              content: note,
-            },
-          ],
+          tag: "markdown",
+          content: note,
         },
       ],
     },

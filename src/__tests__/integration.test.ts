@@ -374,7 +374,7 @@ describe("Integration: End-to-end notification flow", () => {
     expect(content.header.title.content).toBe("Custom Title");
     expect(content.header.template).toBe("red");
     expect(content.body.elements[0].content).toBe("Custom content with \\*\\*markdown\\*\\*");
-    expect(content.body.elements[2].elements[0].content).toBe("Custom note text");
+    expect(content.body.elements[2].content).toBe("Custom note text");
   });
 
   test("handles all eight card themes correctly", async () => {
