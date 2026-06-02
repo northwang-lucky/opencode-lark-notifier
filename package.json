@@ -4,7 +4,6 @@
   "description": "opencode plugin for lark notifications",
   "module": "src/index.ts",
   "type": "module",
-  "private": true,
   "exports": {
     ".": "./src/index.ts"
   },
