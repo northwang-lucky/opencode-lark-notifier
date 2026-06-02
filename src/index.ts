@@ -1,4 +1,6 @@
 import type { Hooks, Plugin, PluginInput } from "@opencode-ai/plugin";
+import type { Event } from "@opencode-ai/sdk/v2";
+
 import { buildCard } from "./cards";
 import { isConfigValid, loadConfig } from "./env";
 import { sendNotification } from "./lark-client";
@@ -23,97 +25,97 @@ const LarkNotifierPlugin: Plugin = async (input: PluginInput) => {
   const listenEvents = new Set([...defaultEvents, ...extraEvents]);
 
   return {
-    event: async ({ event }) => {
-      // Cast to string: v2 events (question.asked, permission.asked) are not in the union
-      const eventType: string = event.type;
+    event: async ({ event: _e }) => {
+      const event = _e as Event;
+      const { properties, type: eventType } = event;
 
       // Handle session.status busy to reset cooldown
       if (eventType === "session.status") {
-        const statusEvent = event as unknown as { properties: { status: { type: string } }; sessionID: string };
-        if (statusEvent.properties?.status?.type === "busy") {
-          cooldown.busy(statusEvent.sessionID);
+        if (properties.status.type === "busy") {
+          cooldown.busy(properties.sessionID);
         }
         return;
       }
 
       // Skip events we're not listening to
-      if (!listenEvents.has(eventType)) return;
+      if (!listenEvents.has(eventType)) {
+        return;
+      }
 
       // Rate limiting check
-      const rateKey = `${eventType}:${(event as unknown as { sessionID?: string }).sessionID ?? "global"}`;
-      if (!rateLimiter.canSend(rateKey)) return;
+      if ("sessionID" in properties) {
+        const rateKey = `${eventType}:${properties.sessionID ?? "global"}`;
+        if (!rateLimiter.canSend(rateKey)) {
+          return;
+        }
+      }
 
       try {
         let cardPayload: CardPayload;
 
         switch (eventType) {
           case "session.idle": {
-            const idleEvent = event as unknown as { sessionID: string };
-            cooldown.idle(idleEvent.sessionID);
-
+            cooldown.idle(properties.sessionID);
             // Don't send immediately - wait for cooldown
             // Use setTimeout to check after cooldown
             setTimeout(async () => {
-              if (!cooldown.shouldNotify(idleEvent.sessionID)) return;
-
+              if (!cooldown.shouldNotify(properties.sessionID)) return;
               const card: CardPayload = {
                 eventType: "session.idle",
                 content: "OpenCode 已完成当前任务，等待你的下一步操作。",
                 theme: "turquoise",
-                sessionId: idleEvent.sessionID,
+                sessionId: properties.sessionID,
               };
-
               await sendNotification(config, card);
             }, config.cooldownMs ?? DEFAULT_COOLDOWN_MS);
             return;
           }
 
           case "session.error": {
-            const errorEvent = event as unknown as { sessionID?: string; error?: { message?: string } };
+            const errorMessage = properties.error?.data?.message;
+            const { sessionID } = properties;
             cardPayload = {
               eventType: "session.error",
-              content: `错误信息：${errorEvent.error?.message ?? "未知错误"}`,
+              content: `错误信息：${errorMessage ?? "未知错误"}`,
               theme: "red",
-              ...(errorEvent.sessionID && { sessionId: errorEvent.sessionID }),
+              ...(sessionID ? { sessionId: sessionID } : {}),
             };
             break;
           }
 
           case "question.asked": {
-            const questionEvent = event as unknown as { sessionID: string; questions?: Array<{ text?: string }> };
-            const questions =
-              questionEvent.questions
-                ?.map((q) => q.text)
-                .filter(Boolean)
-                .join("\n") ?? "需要你的回答";
+            const questions = properties.questions
+              ?.map((q) => q.question)
+              .filter(Boolean)
+              .join("\n");
             cardPayload = {
-              eventType: "question.asked",
-              content: questions,
+              eventType,
+              content: questions ?? "需要你回答",
               theme: "yellow",
-              sessionId: questionEvent.sessionID,
+              sessionId: properties.sessionID,
             };
             break;
           }
 
           case "permission.asked": {
-            const permissionEvent = event as unknown as { sessionID: string; permission?: string };
             cardPayload = {
               eventType: "permission.asked",
-              content: `需要授权：${permissionEvent.permission ?? "未知权限"}`,
+              content: `需要授权：${properties.permission ?? "未知权限"}`,
               theme: "orange",
-              sessionId: permissionEvent.sessionID,
+              sessionId: properties.sessionID,
             };
             break;
           }
 
+          // Custom events
           default: {
-            // Custom events
-            const customEvent = event as unknown as { sessionID?: string };
             cardPayload = {
               eventType: eventType,
               content: `收到事件：${eventType}`,
               theme: "blue",
-              ...(customEvent.sessionID && { sessionId: customEvent.sessionID }),
+              ...("sessionID" in properties && typeof properties.sessionID === "string"
+                ? { sessionId: properties.sessionID }
+                : {}),
             };
           }
         }
