@@ -95,6 +95,21 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput): Promise<Ho
             setTimeout(
               async (sessionID: string) => {
                 if (!cooldown.shouldNotify(sessionID)) return;
+
+                if (config.notifySubagentIdle !== true) {
+                  try {
+                    const sessionResp = await client.session.get({ path: { id: sessionID } });
+                    if (sessionResp.data?.parentID !== undefined) {
+                      logger.debug(`跳过 subagent idle 通知: ${sessionID}`);
+                      return;
+                    }
+                  } catch (err) {
+                    logger.debug(
+                      `session.get 失败，降级发送通知: ${err instanceof Error ? err.message : String(err)}`,
+                    );
+                  }
+                }
+
                 logger.info(`session.idle 冷却到期: session=${sessionID}`);
                 const card: CardPayload = {
                   eventType: "session.idle",

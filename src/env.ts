@@ -91,6 +91,8 @@ export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
   const eventsRaw = envVars.LARK_NOTIFIER_EVENTS;
   const rateLimitRaw = envVars.LARK_NOTIFIER_RATE_LIMIT_MS;
   const cooldownRaw = envVars.LARK_NOTIFIER_COOLDOWN_MS;
+  const notifySubagentIdleRaw = envVars.LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE;
+  const notifySubagentIdle = notifySubagentIdleRaw === "true" || notifySubagentIdleRaw === "TRUE" ? true : undefined;
 
   return {
     appId,
@@ -106,6 +108,7 @@ export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
     }),
     rateLimitMs: rateLimitRaw ? parseInt(rateLimitRaw, 10) : DEFAULT_RATE_LIMIT_MS,
     cooldownMs: cooldownRaw ? parseInt(cooldownRaw, 10) : DEFAULT_COOLDOWN_MS,
+    ...(notifySubagentIdle !== undefined && { notifySubagentIdle }),
   };
 }
 
