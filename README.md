@@ -42,6 +42,7 @@ LARK_USER_EMAIL=xxx@company.com
 LARK_NOTIFIER_EVENTS=          # 额外事件（逗号分隔）
 LARK_NOTIFIER_RATE_LIMIT_MS=30000  # 速率限制（毫秒）
 LARK_NOTIFIER_COOLDOWN_MS=5000     # idle 冷却（毫秒）
+LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE=false  # 是否通知 subagent 的 idle 事件（默认 false）
 ```
 
 生产环境配置可放在 `~/.config/opencode/.env`。
