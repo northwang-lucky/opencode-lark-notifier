@@ -12,6 +12,7 @@ const managedEnvKeys = [
   "LARK_NOTIFIER_EVENTS",
   "LARK_NOTIFIER_RATE_LIMIT_MS",
   "LARK_NOTIFIER_COOLDOWN_MS",
+  "LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE",
 ] as const;
 
 describe("readEnvFile", () => {
@@ -147,6 +148,7 @@ describe("loadConfig", () => {
     delete process.env.LARK_NOTIFIER_EVENTS;
     delete process.env.LARK_NOTIFIER_RATE_LIMIT_MS;
     delete process.env.LARK_NOTIFIER_COOLDOWN_MS;
+    delete process.env.LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE;
     for (const key of Object.keys(originalEnv)) {
       process.env[key] = originalEnv[key];
     }
@@ -218,5 +220,56 @@ describe("loadConfig", () => {
     const config = await loadConfig();
     expect(config.appId).toBe("");
     expect(config.appSecret).toBe("");
+  });
+
+  describe("notifySubagentIdle parsing", () => {
+    test('parses "true" as boolean true', async () => {
+      process.env.LARK_APP_ID = "test-id";
+      process.env.LARK_APP_SECRET = "test-secret";
+      process.env.LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE = "true";
+
+      const config = await loadConfig();
+      expect(config.notifySubagentIdle).toBe(true);
+    });
+
+    test('parses "TRUE" as boolean true', async () => {
+      process.env.LARK_APP_ID = "test-id";
+      process.env.LARK_APP_SECRET = "test-secret";
+      process.env.LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE = "TRUE";
+
+      const config = await loadConfig();
+      expect(config.notifySubagentIdle).toBe(true);
+    });
+
+    test('parses "false" as undefined (not set)', async () => {
+      process.env.LARK_APP_ID = "test-id";
+      process.env.LARK_APP_SECRET = "test-secret";
+      process.env.LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE = "false";
+
+      const config = await loadConfig();
+      expect(config.notifySubagentIdle).toBeUndefined();
+    });
+
+    test("is undefined when env var is not set", async () => {
+      process.env.LARK_APP_ID = "test-id";
+      process.env.LARK_APP_SECRET = "test-secret";
+
+      const config = await loadConfig();
+      expect(config.notifySubagentIdle).toBeUndefined();
+    });
+
+    test.each([
+      ["1"],
+      ["yes"],
+      [""],
+      ["YES"],
+    ])('parses invalid value "%s" as undefined', async (value: string) => {
+      process.env.LARK_APP_ID = "test-id";
+      process.env.LARK_APP_SECRET = "test-secret";
+      process.env.LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE = value;
+
+      const config = await loadConfig();
+      expect(config.notifySubagentIdle).toBeUndefined();
+    });
   });
 });

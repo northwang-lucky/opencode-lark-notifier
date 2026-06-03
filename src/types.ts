@@ -17,6 +17,7 @@ export interface NotifierConfig {
   events?: string[]; // Additional events to listen to
   rateLimitMs?: number; // Rate limit window in ms (0 = no limit)
   cooldownMs?: number; // Idle cooldown in ms
+  notifySubagentIdle?: boolean; // Whether to notify on subagent session.idle events (default: false)
 }
 
 // Event types we handle
