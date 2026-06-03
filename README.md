@@ -48,12 +48,12 @@ LARK_NOTIFIER_COOLDOWN_MS=5000     # idle 冷却（毫秒）
 
 ## 事件→卡片映射
 
-| 事件 | 卡片主题 | 说明 |
-|------|---------|------|
-| `session.idle` | 🟢 青绿 | OpenCode 等待用户操作 |
-| `session.error` | 🔴 红色 | 会话发生错误 |
-| `question.asked` | 🟡 黄色 | 需要用户回答 |
-| `permission.asked` | 🟠 橙色 | 需要用户授权 |
+| 事件               | 卡片主题 | 说明                  |
+| ------------------ | -------- | --------------------- |
+| `session.idle`     | 🟢 青绿  | OpenCode 等待用户操作 |
+| `session.error`    | 🔴 红色  | 会话发生错误          |
+| `question.asked`   | 🟡 黄色  | 需要用户回答          |
+| `permission.asked` | 🟠 橙色  | 需要用户授权          |
 
 ## 日志
 
@@ -73,21 +73,21 @@ LARK_NOTIFIER_COOLDOWN_MS=5000     # idle 冷却（毫秒）
 
 具体字段说明：
 
-| 字段 | 说明 |
-|------|------|
-| `时间戳` | `YYYY-MM-DD HH:mm:ss` 格式的本地时间 |
-| `级别` | `DEBUG` / `INFO` / `WARN` / `ERROR` |
-| `模块` | 产生日志的模块名称（如 `lark-client`、`env`） |
-| `消息` | 日志内容文本 |
+| 字段     | 说明                                          |
+| -------- | --------------------------------------------- |
+| `时间戳` | `YYYY-MM-DD HH:mm:ss` 格式的本地时间          |
+| `级别`   | `DEBUG` / `INFO` / `WARN` / `ERROR`           |
+| `模块`   | 产生日志的模块名称（如 `lark-client`、`env`） |
+| `消息`   | 日志内容文本                                  |
 
 ### 日志级别
 
-| 级别 | 说明 |
-|------|------|
-| `DEBUG` | 调试信息，用于开发和排查问题 |
-| `INFO` | 常规运行信息，如服务启动、Token 刷新成功 |
-| `WARN` | 警告信息，表示潜在问题但不影响运行 |
-| `ERROR` | 错误信息，表示功能异常或 API 调用失败 |
+| 级别    | 说明                                     |
+| ------- | ---------------------------------------- |
+| `DEBUG` | 调试信息，用于开发和排查问题             |
+| `INFO`  | 常规运行信息，如服务启动、Token 刷新成功 |
+| `WARN`  | 警告信息，表示潜在问题但不影响运行       |
+| `ERROR` | 错误信息，表示功能异常或 API 调用失败    |
 
 ### 配置
 
@@ -109,6 +109,8 @@ LARK_NOTIFIER_LOG_LEVEL=WARN
 
 ```bash
 bun install
+bun run lint
+bun run format
 bun run typecheck
 bun test
 bun run build
