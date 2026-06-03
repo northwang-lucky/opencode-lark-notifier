@@ -25,6 +25,7 @@ const managedEnvKeys = [
   "LARK_NOTIFIER_EVENTS",
   "LARK_NOTIFIER_RATE_LIMIT_MS",
   "LARK_NOTIFIER_COOLDOWN_MS",
+  "LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE",
 ] as const;
 
 const realFetch = globalThis.fetch.bind(globalThis);
