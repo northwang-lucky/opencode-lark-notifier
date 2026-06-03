@@ -6,7 +6,7 @@ import { isConfigValid, loadConfig } from "./env";
 import { sendNotification } from "./lark-client";
 import { createLogger } from "./logger";
 import { createCooldown, createRateLimiter, DEFAULT_COOLDOWN_MS, DEFAULT_RATE_LIMIT_MS } from "./rate-limiter";
-import type { CardPayload } from "./types";
+import type { CardPayload, LogLevel } from "./types";
 
 export const LarkNotifierPlugin: Plugin = async (input: PluginInput): Promise<Hooks> => {
   const { client } = input;
@@ -21,7 +21,7 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput): Promise<Ho
   const config = await loadConfig();
 
   const logger = createLogger({
-    logLevel: (process.env.LARK_NOTIFIER_LOG_LEVEL ?? "INFO") as import("./types").LogLevel,
+    logLevel: (process.env.LARK_NOTIFIER_LOG_LEVEL ?? "INFO") as LogLevel,
     logDir: "",
     moduleName: "notifier",
     maxRetentionDays: 7,
@@ -157,7 +157,7 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput): Promise<Ho
           default: {
             logger.info(`发送自定义事件通知: ${eventType}`);
             cardPayload = {
-              eventType: eventType,
+              eventType,
               content: `收到事件：${eventType}`,
               theme: "blue",
               ...("sessionID" in properties && typeof properties.sessionID === "string"

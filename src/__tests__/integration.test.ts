@@ -12,6 +12,7 @@ const originalFetch = global.fetch;
  */
 const FEISHU_ERR_INVALID_TOKEN = 99991668;
 const FEISHU_ERR_INTERNAL = 500;
+let fetchCalls: FetchCall[];
 
 /**
  * Mock fetch behavior configuration
@@ -130,8 +131,6 @@ function createMockFetch(behavior: MockBehavior = {}) {
 
   return mockFn as unknown as typeof global.fetch;
 }
-
-let fetchCalls: FetchCall[];
 
 describe("Integration: End-to-end notification flow", () => {
   beforeEach(() => {

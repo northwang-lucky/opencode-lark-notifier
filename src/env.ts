@@ -38,7 +38,9 @@ export async function readEnvFile(path: string): Promise<Record<string, string>>
     }
 
     const keys = Object.keys(result);
-    console.log(`[env] 已加载 env 文件: ${path}，包含 ${keys.length} 个变量${keys.length > 0 ? ` (${keys.join(", ")})` : ""}`);
+    console.log(
+      `[env] 已加载 env 文件: ${path}，包含 ${keys.length} 个变量${keys.length > 0 ? ` (${keys.join(", ")})` : ""}`,
+    );
     return result;
   } catch (err) {
     console.error(`[env] 读取 env 文件失败: ${path} - ${err instanceof Error ? err.message : String(err)}`);
@@ -69,7 +71,7 @@ export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
   }
 
   // Tier 3: XDG_CONFIG_HOME global .env file
-  const xdgConfigHome = process.env["XDG_CONFIG_HOME"] ?? `${process.env["HOME"] ?? "/tmp"}/.config`;
+  const xdgConfigHome = process.env.XDG_CONFIG_HOME ?? `${process.env.HOME ?? "/tmp"}/.config`;
   console.log(`[env] 第 3 层: 从全局配置读取 (${xdgConfigHome}/opencode/.env)`);
   const globalEnv = await readEnvFile(`${xdgConfigHome}/opencode/.env`);
   for (const [key, value] of Object.entries(globalEnv)) {
@@ -81,14 +83,14 @@ export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
   console.log("[env] 配置加载完成");
 
   // Parse and construct config (conditionally include optional fields for exactOptionalPropertyTypes)
-  const appId = envVars["LARK_APP_ID"] ?? "";
-  const appSecret = envVars["LARK_APP_SECRET"] ?? "";
-  const userEmail = envVars["LARK_USER_EMAIL"];
-  const userOpenId = envVars["LARK_USER_OPEN_ID"];
-  const userId = envVars["LARK_USER_ID"];
-  const eventsRaw = envVars["LARK_NOTIFIER_EVENTS"];
-  const rateLimitRaw = envVars["LARK_NOTIFIER_RATE_LIMIT_MS"];
-  const cooldownRaw = envVars["LARK_NOTIFIER_COOLDOWN_MS"];
+  const appId = envVars.LARK_APP_ID ?? "";
+  const appSecret = envVars.LARK_APP_SECRET ?? "";
+  const userEmail = envVars.LARK_USER_EMAIL;
+  const userOpenId = envVars.LARK_USER_OPEN_ID;
+  const userId = envVars.LARK_USER_ID;
+  const eventsRaw = envVars.LARK_NOTIFIER_EVENTS;
+  const rateLimitRaw = envVars.LARK_NOTIFIER_RATE_LIMIT_MS;
+  const cooldownRaw = envVars.LARK_NOTIFIER_COOLDOWN_MS;
 
   return {
     appId,

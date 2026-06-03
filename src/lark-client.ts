@@ -1,8 +1,8 @@
 import { createLogger } from "./logger";
-import type { LarkConfig, LarkTokenResponse, UserInfo } from "./types";
+import type { LarkConfig, LarkTokenResponse, LogLevel, UserInfo } from "./types";
 
 const logger = createLogger({
-  logLevel: (process.env.LARK_NOTIFIER_LOG_LEVEL ?? "INFO") as import("./types").LogLevel,
+  logLevel: (process.env.LARK_NOTIFIER_LOG_LEVEL ?? "INFO") as LogLevel,
   logDir: "",
   moduleName: "lark-client",
   maxRetentionDays: 7,

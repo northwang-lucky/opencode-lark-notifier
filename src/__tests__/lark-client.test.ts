@@ -47,15 +47,14 @@ describe("sendCardMessage", () => {
     "returns false on timeout",
     async () => {
       const originalFetch = global.fetch;
-      global.fetch = ((_url: string, init?: RequestInit) => {
-        return new Promise<Response>((_resolve, reject) => {
+      global.fetch = ((_url: string, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
           if (init?.signal) {
             init.signal.addEventListener("abort", () => {
               reject(new DOMException("Aborted", "AbortError"));
             });
           }
-        });
-      }) as unknown as typeof global.fetch;
+        })) as unknown as typeof global.fetch;
 
       const result = await sendCardMessage("token", { receiveId: "test", receiveIdType: "email" }, "{}");
       expect(result).toBe(false);

@@ -54,8 +54,8 @@ function resolveLogDir(logDir: string): string {
  */
 export function createLogger(params: CreateLoggerParams): Logger {
   const minLevel = LEVEL_VALUES[params.logLevel];
-  const moduleName = params.moduleName;
-  const maxRetentionDays = params.maxRetentionDays;
+  const { moduleName } = params;
+  const { maxRetentionDays } = params;
   const baseDir = path.resolve(resolveLogDir(params.logDir));
 
   let lastDate: string | null = null;
