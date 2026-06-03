@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.1.0 (2026-06-03)
+
+### Features
+
+- **Subagent Idle Filter**: 新增 `LARK_NOTIFIER_NOTIFY_SUBAGENT_IDLE` 环境变量，控制是否向 subagent 的 `session.idle` 事件发送飞书通知
+  - 默认值 `false`：默认不通知 subagent 的 idle 事件，减少噪音
+  - 设为 `true` 时：subagent 的 idle 事件也会正常通知
+  - 通过 `client.session.get()` 查询 `parentID` 识别 subagent 会话
+  - API 调用失败时降级发送通知，保证不丢通知
+- **TDD 完整覆盖**: 为 subagent 过滤逻辑提供 5 个行为测试 + 5 个配置解析测试
+
+### Bug Fixes
+
+- 修正事件属性访问路径，使用 `properties.sessionID` 替代不安全的类型断言
+
+---
+
 ## 1.0.1 (2026-06-02)
 
 ### Bug Fixes
