@@ -1,3 +1,4 @@
+import type { AppLogData } from "@opencode-ai/sdk";
 import type { ConfigValidationResult, LarkConfig, NotifierConfig } from "./types";
 
 const DEFAULT_RATE_LIMIT_MS = 30000;
@@ -7,15 +8,19 @@ const DEFAULT_COOLDOWN_MS = 5000;
  * Read and parse a .env file manually (no dotenv dependency).
  * Supports: KEY=value, KEY="value", # comments, empty lines.
  */
-export async function readEnvFile(path: string): Promise<Record<string, string>> {
+export async function readEnvFile(
+  path: string,
+  {
+    print = (level, msg) => console[level](msg),
+  }: { print?: (level: NonNullable<AppLogData["body"]>["level"], msg: string) => void } = {},
+): Promise<Record<string, string>> {
   try {
     const file = Bun.file(path);
     const exists = await file.exists();
     if (!exists) {
-      console.log(`[env] env 文件不存在，跳过: ${path}`);
+      print("info", `[env] env 文件不存在，跳过: ${path}`);
       return {};
     }
-
     const content = await file.text();
     const result: Record<string, string> = {};
 
@@ -38,12 +43,13 @@ export async function readEnvFile(path: string): Promise<Record<string, string>>
     }
 
     const keys = Object.keys(result);
-    console.log(
+    print(
+      "info",
       `[env] 已加载 env 文件: ${path}，包含 ${keys.length} 个变量${keys.length > 0 ? ` (${keys.join(", ")})` : ""}`,
     );
     return result;
   } catch (err) {
-    console.error(`[env] 读取 env 文件失败: ${path} - ${err instanceof Error ? err.message : String(err)}`);
+    print("error", `[env] 读取 env 文件失败: ${path} - ${err instanceof Error ? err.message : String(err)}`);
     return {};
   }
 }
@@ -54,16 +60,20 @@ export async function readEnvFile(path: string): Promise<Record<string, string>>
  * 2. `$PWD/.env` — project-level .env file
  * 3. `$XDG_CONFIG_HOME/opencode/.env` — global config (defaults to ~/.config)
  */
-export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
-  console.log("[env] 开始加载配置...");
+export async function loadConfig({
+  print = (level, msg) => console[level](msg),
+}: {
+  print?: (level: NonNullable<AppLogData["body"]>["level"], msg: string) => void;
+} = {}): Promise<LarkConfig & NotifierConfig> {
+  print("info", "[env] 开始加载配置...");
 
   // Tier 1: Direct process.env
-  console.log("[env] 第 1 层: 从 process.env 读取环境变量");
+  print("info", "[env] 第 1 层: 从 process.env 读取环境变量");
   const envVars: Record<string, string | undefined> = { ...process.env };
 
   // Tier 2: Project-level .env file
-  console.log("[env] 第 2 层: 从项目级 .env 文件读取");
-  const projectEnv = await readEnvFile(".env");
+  print("info", "[env] 第 2 层: 从项目级 .env 文件读取");
+  const projectEnv = await readEnvFile(".env", { print });
   for (const [key, value] of Object.entries(projectEnv)) {
     if (!(key in envVars)) {
       envVars[key] = value;
@@ -72,15 +82,15 @@ export async function loadConfig(): Promise<LarkConfig & NotifierConfig> {
 
   // Tier 3: XDG_CONFIG_HOME global .env file
   const xdgConfigHome = process.env.XDG_CONFIG_HOME ?? `${process.env.HOME ?? "/tmp"}/.config`;
-  console.log(`[env] 第 3 层: 从全局配置读取 (${xdgConfigHome}/opencode/.env)`);
-  const globalEnv = await readEnvFile(`${xdgConfigHome}/opencode/.env`);
+  print("info", `[env] 第 3 层: 从全局配置读取 (${xdgConfigHome}/opencode/.env)`);
+  const globalEnv = await readEnvFile(`${xdgConfigHome}/opencode/.env`, { print });
   for (const [key, value] of Object.entries(globalEnv)) {
     if (!(key in envVars)) {
       envVars[key] = value;
     }
   }
 
-  console.log("[env] 配置加载完成");
+  print("info", "[env] 配置加载完成");
 
   // Parse and construct config (conditionally include optional fields for exactOptionalPropertyTypes)
   const appId = envVars.LARK_APP_ID ?? "";

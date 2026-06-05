@@ -18,7 +18,19 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput): Promise<Ho
     },
   });
 
-  const config = await loadConfig();
+  client.app.log({});
+
+  const config = await loadConfig({
+    print: (level, msg) => {
+      void client.app.log({
+        body: {
+          service: "opencode-lark-notifier",
+          level,
+          message: msg,
+        },
+      });
+    },
+  });
 
   const logger = createLogger({
     logLevel: (process.env.LARK_NOTIFIER_LOG_LEVEL ?? "INFO") as LogLevel,
@@ -104,9 +116,7 @@ export const LarkNotifierPlugin: Plugin = async (input: PluginInput): Promise<Ho
                       return;
                     }
                   } catch (err) {
-                    logger.debug(
-                      `session.get 失败，降级发送通知: ${err instanceof Error ? err.message : String(err)}`,
-                    );
+                    logger.debug(`session.get 失败，降级发送通知: ${err instanceof Error ? err.message : String(err)}`);
                   }
                 }
 

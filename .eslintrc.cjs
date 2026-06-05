@@ -39,7 +39,7 @@ module.exports = {
     ],
     "import/prefer-default-export": "off",
     "no-await-in-loop": "off",
-    "no-console": "warn",
+    "no-console": "off",
     "no-continue": "off",
     "no-promise-executor-return": "off",
     "no-plusplus": "off",
