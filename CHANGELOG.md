@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.1 (2026-06-05)
+
+### Refactor
+
+- **统一日志收集**: 将 env 加载阶段的日志从 `console` 接入 OpenCode 的 `client.app.log`
+  - `readEnvFile` 和 `loadConfig` 新增可注入的 `print` 参数
+  - 插件入口通过 `client.app.log` 统一收集配置加载过程的所有日志
+  - 关闭 ESLint `no-console` 规则，与注入式日志策略保持一致
+
+---
+
 ## 1.1.0 (2026-06-03)
 
 ### Features
